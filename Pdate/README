@@ -9,5 +9,5 @@ $ pdate -o 2 -a Tu -r 1    # second Tuesday of the month with respect to next mo
 
 Text can be something like one of these:
 $ pdate -t 'last day of previous month'
-$ pdate -t 'second Tueday of the month'
+$ pdate -t 'second Tuesday of the month'
 $ pdate -t '3rd Fri of the month'

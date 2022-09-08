@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-# File last changed: <2022-06-15 Wed 12:32:29>
+# File last changed: <2022-09-08 Thu 13:13:04>
 
 """@package docstring
 Return relative dates.
 
 Usage: pdate [options]
 
--h --help                      show this
+-h --help                      show this message
 -o --ordinal ORDINAL           specifies which day of the month [default: first]
 -a --dayofweek DAY             show date for this day of the week
--r --referencemonth MONTH      specifies which reference month to use where 0==current [default: 0]
+-D --referenceday DAYS         specifies which reference days to use where 0==current [default: 0]
+-M --referencemonth MONTHS     specifies which reference month to use where 0==current [default: 0]
 -t --text TEXT                 interpret TEXT as some date and display that date
 -f --format FORMAT             format the resulting date using FORMAT [default: %Y-%m-%d]
 -d --dump                      Dump option settings
 -v --version                   Display program version
 
-$ pdate [-o ORDINAL] [-a DAY] [-r MONTH] ] [-f FORMAT] [-d] [-v] 
+$ pdate [-o ORDINAL] [-a DAY] [-D DAYS] [-M MONTHS] ] [-f FORMAT] [-d] [-v] 
 $ pdate [-t TEXT] [-f FORMAT] [-d] [-v] 
 
 Examples:
@@ -81,10 +82,14 @@ def mapDayOfWeek(dow):
         raise UsageError("Unknown day of week: '{}'".format(dow))
 
 
-def nthDayOfMonth(nth, dow, referenceMonth=0):
-    "Return the nearest NTH DOW (day) of the month that has not past. If REFERENCEMONTH is non zero, consider that month."
+def nthDayOfMonth(nth, dow, referenceMonth=0, referenceDay=0):
+    """Return the nearest NTH DOW (day) of the month that has not past.
+    If REFERENCEMONTH is non zero, adjust by that many months.
+    If REFERENCEDAY is non zero, adjust by that many days .
+"""
 
-    # print("nthDayOfMonth: {} {} {}".format(nth, dow, referenceMonth))
+    # print("nthDayOfMonth: nth={} dow={} referenceMonth={} referenceDay={}".format(
+    #    nth, dow, referenceMonth, referenceDay))
 
     def dowEntriesInMonth(year, month, dow):
         "Return a list from DAYLIST (a list of tuples: (year, month, date, day-of-week)) all the entries for MONTH that match DOW."
@@ -97,8 +102,8 @@ def nthDayOfMonth(nth, dow, referenceMonth=0):
         "Return the date of the first day of the next month after D."
         return(date(d.year + (d.month == 12), d.month+1 - (12*(d.month == 12)), 1))
 
-    def nthDayOfMonthHelper(nth, dow, year, month, referenceMonth):
-        "Return the NTH DOW for the given YEAR/MONTH."
+    def nthDayOfMonthHelper(nth, dow, year, month, referenceMonth, referenceDay):
+        "Return the NTH DOW for the given YEAR/MONTH, possibly adjusting by REFERENCEMONTH and REFERENCEDAY."
 
         daysOfTheWeekNameMap = {
             0: "Monday",
@@ -111,8 +116,10 @@ def nthDayOfMonth(nth, dow, referenceMonth=0):
         }
 
         d = date(year, month, 1) + \
-            relativedelta.relativedelta(months=referenceMonth)
+            relativedelta.relativedelta(
+                months=referenceMonth, days=referenceDay)
         entries = dowEntriesInMonth(d.year, d.month, dow)
+        #print("nthDayOfMonthHelper: entries={}".format(entries))
         try:
             entry = entries[nth-1]
         except IndexError:
@@ -120,7 +127,8 @@ def nthDayOfMonth(nth, dow, referenceMonth=0):
                 "The month ({}/{}) does not contain {} {}s!".format(year, month, nth, daysOfTheWeekNameMap[dow]))
 
         target = date(entry[0], entry[1], entry[2])
-        if referenceMonth == 0:
+        if referenceMonth == 0 and referenceDay == 0:
+            #print("nthDayOfMonthHelper: target={}; date.today={}".format(target, date.today()))
             if target >= date.today():
                 return target
             else:
@@ -131,12 +139,13 @@ def nthDayOfMonth(nth, dow, referenceMonth=0):
     d = date.today()
 
     try:
-        target = nthDayOfMonthHelper(nth, dow, d.year, d.month, referenceMonth)
+        target = nthDayOfMonthHelper(
+            nth, dow, d.year, d.month, referenceMonth, referenceDay)
         return target
     except PastDOWInCurrentMonth:
         fonm = firstOfNextMonth(d)
         try:
-            return nthDayOfMonthHelper(nth, dow, fonm.year, fonm.month, referenceMonth)
+            return nthDayOfMonthHelper(nth, dow, fonm.year, fonm.month, referenceMonth, referenceDay)
         except UsageError as ue:
             raise(ue)
 
@@ -192,8 +201,8 @@ def dateFromDescription(description, format):
             "'{}' not understood.\n{}".format(description, __doc__))
 
 
-def dateFromParams(ordinal, dayOfWeek, referenceMonth, format):
-    "Return date corresponding to ORDINAL, DAYOFWEEK and REFERENCEMONTH formatted according to FORMAT."
+def dateFromParams(ordinal, dayOfWeek, referenceMonth, referenceDay, format):
+    "Return date corresponding to ORDINAL, DAYOFWEEK, REFERENCEMONTH and REFERENCEDAY formatted according to FORMAT."
     if ordinal is None:
         raise UsageError("ordinal not provided")
     else:
@@ -205,10 +214,14 @@ def dateFromParams(ordinal, dayOfWeek, referenceMonth, format):
     if referenceMonth is None:
         raise UsageError("referenceMonth not provided")
     else:
-        ref = int(referenceMonth)
+        ref_month = int(referenceMonth)
+    if referenceDay is None:
+        raise UsageError("referenceDay not provided")
+    else:
+        ref_day = int(referenceDay)
 
     try:
-        return nthDayOfMonth(ord, dow, ref).strftime(format)
+        return nthDayOfMonth(ord, dow, ref_month, ref_day).strftime(format)
     except UsageError as ue:
         raise UsageError(ue)
 
@@ -227,12 +240,14 @@ if __name__ == '__main__':
     format = ARGUMENTS['--format']
     try:
         if text is not None:
-            print(dateFromDescription(text, format))
+            print(dateFromDescription(text, format), end="")
         else:
             ordinal = ARGUMENTS['--ordinal']
             dayOfWeek = ARGUMENTS['--dayofweek']
             referenceMonth = ARGUMENTS['--referencemonth']
-            print(dateFromParams(ordinal, dayOfWeek, referenceMonth, format))
+            referenceDay = ARGUMENTS['--referenceday']
+            print(dateFromParams(ordinal, dayOfWeek,
+                                 referenceMonth, referenceDay, format), end="")
     except UsageError as ue:
         print("UsageError: {}".format(ue))
         sys.exit(1)

@@ -11,11 +11,19 @@
       /* @import url('https://fonts.googleapis.com/css?family=Roboto:100,300'); */
 
       :root {
-	  --clock-color-normal: black;
-	  --clock-color-alert: red;
-	  --clock-color: var(--clock-color-normal);
+	  --timer-color: black;
       }
 
+      .normal-style {
+	  color: blue;
+	  font-weight: 100 !important;
+      }
+
+      .alert-style {
+	  color: red;
+	  font-weight: 300 !important;
+      }
+      
       button[data-setter] {
 	  outline: none;
 	  background: transparent;
@@ -25,7 +33,7 @@
 	  font-size: 36px;
 	  width: 25px;
 	  height: 30px;
-	  color: var(--clock-color);
+	  color: var(--time-color);
 	  cursor: pointer;
       }
 
@@ -62,7 +70,6 @@
 	  font-family: 'Roboto';
 	  font-weight: 100;
 	  font-size: 65px;
-	  color: var(--clock-color);
       }
 
       #pause {
@@ -75,6 +82,14 @@
 	  position: relative;
       }
 
+      .play {
+	  border: transparent;
+      }
+
+      .pause {
+	  border: transparent;
+      }
+
       .play::before {
 	  display: block;
 	  content: "";
@@ -83,7 +98,7 @@
 	  /* left: 16px; */
 	  border-top: 15px solid transparent;
 	  border-bottom: 15px solid transparent;
-	  border-left: 22px solid var(--clock-color);
+	  border-left: 22px solid var(--timer-color);
       }
 
       .pause::after {
@@ -95,12 +110,30 @@
 	  height: 30px;
 	  background-color: transparent;
 	  border-radius: 1px;
-	  border: 5px solid var(--clock-color);
+	  border: 5px solid var(--timer-color);
 	  border-top: none;
 	  border-bottom: none;
       }
 
       #pause:hover { opacity: 0.8; }
+
+      .pulse-circle {
+	  animation: pulse-black 2s infinite;
+      }
+
+      @keyframes pulse-black {
+	  0% {
+	      transform: scale(0.95);
+	  }
+	  
+	  70% {
+	      transform: scale(1);
+	  }
+	  
+	  100% {
+	      transform: scale(0.95);
+	  }
+      }
 
       .e-c-base {
 	  fill: none;
@@ -110,201 +143,27 @@
 
       .e-c-progress {
 	  fill: none;
-	  stroke: var(--clock-color);
+	  stroke: var(--timer-color);
 	  stroke-width: 4px;
 	  transition: stroke-dashoffset 0.7s;
       }
 
       .e-c-pointer {
 	  fill: #FFF;
-	  stroke: var(--clock-color);
+	  stroke: var(--timer-color);
 	  stroke-width: 2px;
       }
 
       #e-pointer { transition: transform 0.7s; }
-      h1 { margin-top:150px; text-align:center;}
+      h1 { margin-top:1px; text-align:center;}
       body { background-color:#f7f7f7;}
     </style>
   </head>
 
   <body>
-    <!-- <div id="css-script-menu"> -->
-      <!--   <div class="css-script-center"> -->
-	<!-- <ul> -->
-	  <!--   <li><a href="https://www.cssscript.com/image-caption-hover-animations-with-css3-transitions-and-transforms/">Download</a></li> -->
-	  <!--   <li><a href="https://www.cssscript.com/">Back To CSS Script</a></li> -->
-	  <!-- </ul> -->
-	<!-- <div class="css-script-ads"> -->
-	  <!--   <script type="text/javascript"><\!-- -->
-	    <!--     google_ad_client = "ca-pub-2783044520727903"; -->
-	    <!--     /* CSSScript Demo Page */ -->
-	    <!--     google_ad_slot = "3025259193"; -->
-	    <!--     google_ad_width = 728; -->
-	    <!--     google_ad_height = 90; -->
-	    <!--     //-\-> -->
-	      <!--   </script> -->
-	  <!--   <script type="text/javascript" src="https://pagead2.googlesyndication.com/pagead/show_ads.js"> -->
-	    <!-- </script></div> -->
-	<!-- 	<div class="css-script-clear"></div> -->
-	<!--   </div> -->
-      <!-- </div> -->
     <h1>Circular Countdown Timer Demo</h1>
 
-    <!-- <div class="container"> -->
-      <!--   <div class="setters"> -->
-	<!-- 	<div class="minutes-set"> -->
-	  <!-- 	  <button data-setter="minutes-plus">+</button> -->
-	  <!-- 	  <button data-setter="minutes-minus">-</button> -->
-	  <!-- 	</div> -->
-	<!-- 	<div class="seconds-set"> -->
-	  <!-- 	  <button data-setter="seconds-plus">+</button> -->
-	  <!-- 	  <button data-setter="seconds-minus">-</button> -->
-	  <!-- 	</div> -->
-	<!--   </div> -->
-      <!--   <div class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg"> -->
-	  <!-- 	  <g transform="translate(110,110)"> -->
-	    <!-- 	    <circle r="100" class="e-c-base"/> -->
-	    <!-- 	    <g transform="rotate(-90)"> -->
-	      <!--           <circle r="100" class="e-c-progress"/> -->
-	      <!--           <g id="e-pointer"> -->
-		<!-- 		<circle cx="100" cy="0" r="8" class="e-c-pointer"/> -->
-		<!--           </g> -->
-	      <!-- 	    </g> -->
-	    <!-- 	  </g> -->
-	  <!--   </svg> </div> -->
-      <!--   <div class="controlls"> -->
-	<!-- 	<div class="display-remain-time">00:30</div> -->
-	<!-- 	<button class="play" id="pause"></button> -->
-	<!--   </div> -->
-      <!-- </div> -->
-
-    <!-- <script> -->
-      <!--   //circle start -->
-      <!--   let progressBar = document.querySelector('.e-c-progress'); -->
-      <!--   //      let indicator = document.getElementById('e-indicator'); -->
-      <!--   let pointer = document.getElementById('e-pointer'); -->
-      <!--   let length = Math.PI * 2 * 100; -->
-
-      <!--   progressBar.style.strokeDasharray = length; -->
-
-      <!--   function update(value, timePercent) { -->
-      <!-- 	  var offset = - length - length * value / (timePercent); -->
-      <!-- 	  progressBar.style.strokeDashoffset = offset;  -->
-      <!-- 	  pointer.style.transform = `rotate(${360 * value / (timePercent)}deg)`;  -->
-      <!--   }; -->
-
-      <!--   //circle ends -->
-      <!--   const displayOutput = document.querySelector('.display-remain-time') -->
-      <!--   const pauseBtn = document.getElementById('pause'); -->
-      <!--   const setterBtns = document.querySelectorAll('button[data-setter]'); -->
-
-      <!--   let intervalTimer; -->
-      <!--   let timeLeft; -->
-      <!--   let wholeTime =  .125 * 60; // manage this to set the whole time  -->
-      <!--   let isPaused = false; -->
-      <!--   let isStarted = false; -->
-
-
-      <!--   update(wholeTime,wholeTime); //refreshes progress bar -->
-      <!--   displayTimeLeft(wholeTime); -->
-
-      <!--   function changeWholeTime(seconds){ -->
-      <!-- 	  if ((wholeTime + seconds) > 0){ -->
-      <!-- 	      wholeTime += seconds; -->
-      <!-- 	      update(wholeTime,wholeTime); -->
-      <!-- 	  } -->
-      <!--   } -->
-
-      <!--   for (var i = 0; i < setterBtns.length; i++) { -->
-      <!-- 	  setterBtns[i].addEventListener("click", function(event) { -->
-      <!--           var param = this.dataset.setter; -->
-      <!--           switch (param) { -->
-      <!--           case 'minutes-plus': -->
-      <!--               changeWholeTime(1 * 60); -->
-      <!--               break; -->
-      <!--           case 'minutes-minus': -->
-      <!--               changeWholeTime(-1 * 60); -->
-      <!--               break; -->
-      <!--           case 'seconds-plus': -->
-      <!--               changeWholeTime(1); -->
-      <!--               break; -->
-      <!--           case 'seconds-minus': -->
-      <!--               changeWholeTime(-1); -->
-      <!--               break; -->
-      <!--           } -->
-      <!-- 	      displayTimeLeft(wholeTime); -->
-      <!-- 	  }); -->
-      <!--   } -->
-
-      <!--   function timer (seconds){ //counts time, takes seconds -->
-      <!-- 	  let remainTime = Date.now() + (seconds * 1000); -->
-      <!-- 	  displayTimeLeft(seconds); -->
-      
-      <!-- 	  intervalTimer = setInterval(function(){ -->
-      <!-- 	      timeLeft = Math.round((remainTime - Date.now()) / 1000); -->
-      <!-- 	      if(timeLeft < 0){ -->
-      <!-- 		  clearInterval(intervalTimer); -->
-      <!-- 		  isStarted = false; -->
-      <!-- 		  setterBtns.forEach(function(btn){ -->
-      <!-- 		      btn.disabled = false; -->
-      <!-- 		      btn.style.opacity = 1; -->
-      <!-- 		  }); -->
-      <!-- 		  displayTimeLeft(wholeTime); -->
-      <!-- 		  pauseBtn.classList.remove('pause'); -->
-      <!-- 		  pauseBtn.classList.add('play'); -->
-      <!-- 		  var r = document.querySelector(':root'); -->
-      <!-- 		  var rs = getComputedStyle(r); -->
-      <!-- 		  r.style.setProperty('--clock-color', rs.getPropertyValue('--clock-color-normal') );  -->
-      <!-- 		  return ; -->
-      <!-- 	      } -->
-      <!-- 	      if( timeLeft < 3) { -->
-      <!-- 		  var r = document.querySelector(':root'); -->
-      <!-- 		  var rs = getComputedStyle(r); -->
-      <!-- 		  r.style.setProperty('--clock-color', rs.getPropertyValue('--clock-color-alert') ); // This is nice and simple but will change the color for all clocks on the page. TODO: change the classes of all affected components -->
-      <!-- 	      } -->
-
-      <!-- 	      displayTimeLeft(timeLeft); -->
-      <!-- 	  }, 1000); -->
-      <!--   } -->
-      <!--   function pauseTimer(event){ -->
-      <!-- 	  if(isStarted === false){ -->
-      <!-- 	      timer(wholeTime); -->
-      <!-- 	      isStarted = true; -->
-      <!-- 	      this.classList.remove('play'); -->
-      <!-- 	      this.classList.add('pause'); -->
-      
-      <!-- 	      setterBtns.forEach(function(btn){ -->
-      <!-- 		  btn.disabled = true; -->
-      <!-- 		  btn.style.opacity = 0.5; -->
-      <!-- 	      }); -->
-
-      <!-- 	  }else if(isPaused){ -->
-      <!-- 	      this.classList.remove('play'); -->
-      <!-- 	      this.classList.add('pause'); -->
-      <!-- 	      timer(timeLeft); -->
-      <!-- 	      isPaused = isPaused ? false : true -->
-      <!-- 	  }else{ -->
-      <!-- 	      this.classList.remove('pause'); -->
-      <!-- 	      this.classList.add('play'); -->
-      <!-- 	      clearInterval(intervalTimer); -->
-      <!-- 	      isPaused = isPaused ? false : true ; -->
-      <!-- 	  } -->
-      <!--   } -->
-
-      <!--   function displayTimeLeft (timeLeft){ //displays time on the input -->
-      <!-- 	  let minutes = Math.floor(timeLeft / 60); -->
-      <!-- 	  let seconds = timeLeft % 60; -->
-      <!-- 	  let displayString = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`; -->
-      <!-- 	  displayOutput.textContent = displayString; -->
-      <!-- 	  update(timeLeft, wholeTime); -->
-      <!--   } -->
-
-      <!--   pauseBtn.addEventListener('click',pauseTimer); -->
-      <!-- </script> -->
-    <!-- // _____________________________________________________________________________________________________________________________________________________________________________________ -->
-
     <script>
-
       class CircularTimer {
 	  static id = 666;
 
@@ -324,13 +183,13 @@
 	  <button data-setter-${this.id}="seconds-minus">-</button>
 	</div>
       </div>
-      <div class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <div id="circle-${this.id}" class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
 	  <g transform="translate(110,110)">
 	    <circle r="100" class="e-c-base"/>
 	    <g transform="rotate(-90)">
               <circle id="e-c-progress-${this.id}" r="100" class="e-c-progress"/>
               <g id="e-pointer-${this.id}">
-		<circle cx="100" cy="0" r="8" class="e-c-pointer"/>
+		<circle id="e-c-pointer-${this.id}" cx="100" cy="0" r="8" class="e-c-pointer"/>
               </g>
 	    </g>
 	  </g>
@@ -365,8 +224,8 @@
 	      this.displayTimeLeft(this.wholeTime);
 
 	      for (var i = 0; i < this.setterBtns.length; i++) {
-		  this.setterBtns[i].addEventListener("click", function(event) {
-		      var param = this.dataset.setter ;
+		  this.setterBtns[i].addEventListener("click", function(btn, event) {
+		      var param = btn.dataset["setter-" + this.id];
 		      switch (param) {
 		      case 'minutes-plus':
 			  this.changeWholeTime(1 * 60);
@@ -382,12 +241,32 @@
 			  break;
 		      }
 		      this.displayTimeLeft(this.wholeTime);
-		  });
+		  }.bind(this,this.setterBtns[i]));
 	      }
 
+	      this.changeTimerVisualComponentsClasses( "alert-style", "normal-style" );
 	      this.pauseBtn.addEventListener('click', this.pauseTimer.bind(this,this.pauseBtn));
 
 	  }
+
+	  changeTimerVisualComponentsClasses( from, to ) {
+	      // Change the classes of all  of this timer's visual components from FROM class to TO class.
+	      let components = [
+		  // 'button[data-setter]',
+		  'display-remain-time',
+		  'pause',
+		  'e-c-progress',
+		  'e-c-pointer'
+	      ];
+
+	      let timerThisId = this.id;
+	      components.forEach(function( comp ) {
+		  let compInstance =  comp + "-" + timerThisId;
+		  let el = document.getElementById( compInstance );
+		  el.classList.remove( from );
+		  el.classList.add( to );
+	      });
+	  };
 
 	  update(value, timePercent) {
 	      let offset = - length - length * value / (timePercent);
@@ -422,15 +301,13 @@
 		      this.displayTimeLeft(this.wholeTime);
 		      this.pauseBtn.classList.remove('pause');
 		      this.pauseBtn.classList.add('play');
-		      var r = document.querySelector(':root');
-		      var rs = getComputedStyle(r);
-		      r.style.setProperty('--clock-color', rs.getPropertyValue('--clock-color-normal') ); 
+		      this.changeTimerVisualComponentsClasses( "alert-style", "normal-style" );
 		      return ;
 		  }
-		  if( this.timeLeft < 3) {
-		      var r = document.querySelector(':root');
-		      var rs = getComputedStyle(r);
-		      r.style.setProperty('--clock-color', rs.getPropertyValue('--clock-color-alert') ); // This is nice and simple but will change the color for all clocks on the page. TODO: change the classes of all affected components
+		  if( this.timeLeft < 10) {
+		      this.changeTimerVisualComponentsClasses( "normal-style", "alert-style" );
+		      let el = document.getElementById( "circle-" + this.id );
+		      el.classList.add( "pulse-circle" );
 		  }
 
 		  this.displayTimeLeft(this.timeLeft);
@@ -443,6 +320,8 @@
 		  this.isStarted = true;
 		  btn.classList.remove('play');
 		  btn.classList.add('pause');
+		  let circle = document.getElementById( "circle-" + this.id );
+		  circle.classList.remove( "pulse-circle" );
 		  
 		  this.setterBtns.forEach(function(btn){
 		      btn.disabled = true;
@@ -472,19 +351,12 @@
 
       };
 
-      const ct1 = new CircularTimer( 17 );
-      const ct2 = new CircularTimer( 33 );
+      const ct1 = new CircularTimer( 11 );
+      const ct2 = new CircularTimer( 22 );
+      const ct3 = new CircularTimer( 33 );
+      const ct4 = new CircularTimer( 44 );
+      const ct5 = new CircularTimer( 55 );
 
     </script>
-    <!-- <script> -->
-      <!--   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ -->
-      <!-- 	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), -->
-      <!-- 			       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) -->
-      <!-- 			      })(window,document,'script','//www.google-analytics.com/analytics.js','ga'); -->
-
-      <!--   ga('create', 'UA-46156385-1', 'cssscript.com'); -->
-      <!--   ga('send', 'pageview'); -->
-
-      <!-- </script> -->
   </body>
 </html>

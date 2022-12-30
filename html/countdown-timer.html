@@ -37,7 +37,13 @@
 	  cursor: pointer;
       }
 
-      button[data-setter]:hover { opacity: 0.5; }
+      .data-setter {
+	  font-size: 24px;
+      }
+
+      button[data-setter]:hover {
+	  opacity: 0.5;
+      }
 
       .container {
 	  position: relative;
@@ -50,6 +56,7 @@
 	  position: absolute;
 	  left: 85px;
 	  top: 75px;
+	  z-index: 10;
       }
 
       .minutes-set {
@@ -164,6 +171,8 @@
     <h1>Circular Countdown Timer Demo</h1>
 
     <script>
+      const MINIMAL_ALERT_DURATION = 10; // Number of seconds beyond which timer should alert
+
       class CircularTimer {
 	  static id = 666;
 
@@ -175,12 +184,12 @@
     <div class="container">
       <div class="setters">
 	<div class="minutes-set">
-	  <button data-setter-${this.id}="minutes-plus">+</button>
-	  <button data-setter-${this.id}="minutes-minus">-</button>
+	  <button class="data-setter" data-setter-${this.id}="minutes-plus">+</button>
+	  <button class="data-setter" data-setter-${this.id}="minutes-minus">-</button>
 	</div>
 	<div class="seconds-set">
-	  <button data-setter-${this.id}="seconds-plus">+</button>
-	  <button data-setter-${this.id}="seconds-minus">-</button>
+	  <button class="data-setter" data-setter-${this.id}="seconds-plus">+</button>
+	  <button class="data-setter" data-setter-${this.id}="seconds-minus">-</button>
 	</div>
       </div>
       <div id="circle-${this.id}" class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
@@ -214,10 +223,9 @@
 
 	      this.intervalTimer = 0;
 	      this.timeLeft = 0;
-	      this.wholeTime =  initial_time;
+	      this.wholeTime = initial_time;
 	      this.isPaused = false;
 	      this.isStarted = false;
-
 
 	      this.progressBar.style.strokeDasharray = length;
 	      this.update(this.wholeTime,this.wholeTime); //refreshes progress bar
@@ -240,8 +248,9 @@
 			  this.changeWholeTime(-1);
 			  break;
 		      }
-		      this.displayTimeLeft(this.wholeTime);
-		  }.bind(this,this.setterBtns[i]));
+		      this.displayTimeLeft( this.wholeTime );
+		  }.bind( this, this.setterBtns[i] )
+						     );
 	      }
 
 	      this.changeTimerVisualComponentsClasses( "alert-style", "normal-style" );
@@ -295,8 +304,8 @@
 		      clearInterval(this.intervalTimer);
 		      this.isStarted = false;
 		      this.setterBtns.forEach(function(btn){
-			  btn.disabled = false;
 			  btn.style.opacity = 1;
+			  btn.disabled = false;
 		      });
 		      this.displayTimeLeft(this.wholeTime);
 		      this.pauseBtn.classList.remove('pause');
@@ -304,7 +313,7 @@
 		      this.changeTimerVisualComponentsClasses( "alert-style", "normal-style" );
 		      return ;
 		  }
-		  if( this.timeLeft < 10) {
+		  if( this.timeLeft <= MINIMAL_ALERT_DURATION) {
 		      this.changeTimerVisualComponentsClasses( "normal-style", "alert-style" );
 		      let el = document.getElementById( "circle-" + this.id );
 		      el.classList.add( "pulse-circle" );
@@ -323,10 +332,10 @@
 		  let circle = document.getElementById( "circle-" + this.id );
 		  circle.classList.remove( "pulse-circle" );
 		  
-		  this.setterBtns.forEach(function(btn){
-		      btn.disabled = true;
-		      btn.style.opacity = 0.5;
-		  });
+		  // this.setterBtns.forEach(function(btn){
+		  //     btn.disabled = true;
+		  //     btn.style.opacity = 0.5;
+		  // });
 
 	      }else if(this.isPaused){
 		  btn.classList.remove('play');
@@ -351,7 +360,7 @@
 
       };
 
-      const ct1 = new CircularTimer( 11 );
+      const ct1 = new CircularTimer( 3 );
       const ct2 = new CircularTimer( 22 );
       const ct3 = new CircularTimer( 33 );
       const ct4 = new CircularTimer( 44 );

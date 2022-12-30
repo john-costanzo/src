@@ -222,8 +222,9 @@
 	      this.setterBtns = document.querySelectorAll('button[data-setter' + "-" + this.id + ']');
 
 	      this.intervalTimer = 0;
-	      this.timeLeft = 0;
 	      this.wholeTime = initial_time;
+	      this.remainTime = 0; // time (in ms) at which the current countdown should end
+	      this.timeLeft = 0; // number of seconds remaining in this countdown
 	      this.isPaused = false;
 	      this.isStarted = false;
 
@@ -236,19 +237,19 @@
 		      var param = btn.dataset["setter-" + this.id];
 		      switch (param) {
 		      case 'minutes-plus':
-			  this.changeWholeTime(1 * 60);
+			  this.adjustTime(1 * 60);
 			  break;
 		      case 'minutes-minus':
-			  this.changeWholeTime(-1 * 60);
+			  this.adjustTime(-1 * 60);
 			  break;
 		      case 'seconds-plus':
-			  this.changeWholeTime(1);
+			  this.adjustTime(1);
 			  break;
 		      case 'seconds-minus':
-			  this.changeWholeTime(-1);
+			  this.adjustTime(-1);
 			  break;
 		      }
-		      this.displayTimeLeft( this.wholeTime );
+		      this.displayTimeLeft( this.timeLeft );
 		  }.bind( this, this.setterBtns[i] )
 						     );
 	      }
@@ -287,19 +288,30 @@
 
 
 
-	  changeWholeTime(seconds){
-	      if ((this.wholeTime + seconds) > 0){
+	  adjustTime(seconds) {
+	      // Adjust all of this object's:
+	      //   - wholeTime (the initial countdown period) and
+	      //   - timeLeft (the number of seconds left in this countdown) and
+	      //   - remainTime (the time this countdown period should end if the timer is running) by SECONDS.
+	      if( (this.wholeTime + seconds) > 0 ) {
 		  this.wholeTime += seconds;
-		  this.update(this.wholeTime,this.wholeTime);
+		  this.timeLeft += seconds;
+//		  this.update(this.wholeTime,this.wholeTime);
+	      }
+	      if(this.isStarted === true){
+		  if( (this.remainTime + (seconds * 1000) ) > 0 ) {
+		      this.remainTime += (seconds * 1000);
+		      this.update(this.remainTime,this.remainTime);
+		  }
 	      }
 	  }
 
 	  timer (seconds){ //counts time, takes seconds
-	      let remainTime = Date.now() + (seconds * 1000);
+	      this.remainTime = Date.now() + (seconds * 1000);
 	      this.displayTimeLeft(seconds);
 	      
 	      this.intervalTimer = setInterval(function(){
-		  this.timeLeft = Math.round((remainTime - Date.now()) / 1000);
+		  this.timeLeft = Math.round((this.remainTime - Date.now()) / 1000);
 		  if(this.timeLeft < 0){
 		      clearInterval(this.intervalTimer);
 		      this.isStarted = false;

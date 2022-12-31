@@ -152,7 +152,7 @@
 	  fill: none;
 	  stroke: var(--timer-color);
 	  stroke-width: 4px;
-	  transition: stroke-dashoffset 0.7s;
+	  transition: stroke-dashoffset 1s;
       }
 
       .e-c-pointer {
@@ -161,7 +161,7 @@
 	  stroke-width: 2px;
       }
 
-      #e-pointer { transition: transform 0.7s; }
+      .e-pointer { transition: transform 0.7s; }
       h1 { margin-top:1px; text-align:center;}
       body { background-color:#f7f7f7;}
     </style>
@@ -176,9 +176,32 @@
       class CircularTimer {
 	  static id = 666;
 
-	  constructor( initial_time ) {
+
+	  /**
+	   * Construct a new CircularTimer, optionally configure to play sounds upon completion.
+	   *
+	   * @param {number} initial_time - The number of seconds the timer is initialized with each time it is run.
+	   * @param {map of arrays} sounds - A HashMap keyed on integers, which specify number of seconds remaining in the countdown, 
+	   *                                 and values of either a string or an  arrary of strings that specify file names to play at those times.
+	   *
+	   * @example
+	   * // Constructs a new (silent) CircularTimer initialized to 10 seconds.
+	   * let ct1 = new CircularTimer( 10 )
+	   *
+	   * @example
+	   * // Constructs a new CircularTimer initialized to 30 seconds that
+	   * // plays two sounds with 10 seconds remaining and another at countdown termination.
+	   * let s = new Object();
+	   * s[ 10 ] = [ 'fileA', 'fileB' ];
+	   * s[ 0 ] = 'fileC';
+	   * let ct2 = new CircularTimer( 30, s )
+	   *
+	   * @returns {CircularTimer} Returns a new CircularTimer embedded in the page at the point of call.
+	   */
+	  constructor( initial_time, sounds ) {
 	      CircularTimer.id += 1;
 	      this.id = CircularTimer.id;
+	      this.sounds = sounds;
 
 	      document.write(`
     <div class="container">
@@ -197,8 +220,8 @@
 	    <circle r="100" class="e-c-base"/>
 	    <g transform="rotate(-90)">
               <circle id="e-c-progress-${this.id}" r="100" class="e-c-progress"/>
-              <g id="e-pointer-${this.id}">
-		<circle id="e-c-pointer-${this.id}" cx="100" cy="0" r="8" class="e-c-pointer"/>
+              <g id="e-pointer-${this.id}" class="e-pointer"> // TODO: figure out if we need both id and class on both lines
+		<circle id="e-pointer-${this.id}" class="e-pointer" cx="100" cy="0" r="8"/>
               </g>
 	    </g>
 	  </g>
@@ -224,7 +247,7 @@
 	      this.intervalTimer = 0;
 	      this.wholeTime = initial_time;
 	      this.remainTime = 0; // time (in ms) at which the current countdown should end
-	      this.timeLeft = 0; // number of seconds remaining in this countdown
+	      this.timeLeft = initial_time; // number of seconds remaining in this countdown
 	      this.isPaused = false;
 	      this.isStarted = false;
 
@@ -266,7 +289,7 @@
 		  'display-remain-time',
 		  'pause',
 		  'e-c-progress',
-		  'e-c-pointer'
+		  // 'e-c-pointer'
 	      ];
 
 	      let timerThisId = this.id;
@@ -296,7 +319,7 @@
 	      if( (this.wholeTime + seconds) > 0 ) {
 		  this.wholeTime += seconds;
 		  this.timeLeft += seconds;
-//		  this.update(this.wholeTime,this.wholeTime);
+		  //		  this.update(this.wholeTime,this.wholeTime);
 	      }
 	      if(this.isStarted === true){
 		  if( (this.remainTime + (seconds * 1000) ) > 0 ) {
@@ -306,12 +329,45 @@
 	      }
 	  }
 
+	  /**
+	   * Play sounds according the state of this CircularTimer and a configuration object.
+	   *
+	   * @param {number} timeLeft - The number of seconds remaining in this countdown.
+	   *
+	   * @example
+	   * // Play the sounds configured for 10 seconds remaining in the countdown.
+	   * playSounds ( 10 );
+	   *
+	   * @returns {number} Returns the number of sounds played.
+	   */
+	  playSounds( timeLeft ) {
+	      let nsounds = 0;
+	      if( this.sounds !== undefined ) {
+		  let s = this.sounds[ timeLeft ];
+		  if( s !== undefined ) {
+		      if( typeof s === 'string' ) {
+			  let audio = new Audio( s );
+			  audio.play();
+			  nsounds++;
+		      } else if( typeof s === 'object' ) {
+			  s.forEach(function(f) {
+			      let audio = new Audio( f );
+			      audio.play();
+			      nsounds++;
+			  });
+		      }
+		  }
+	      }
+	      return( nsounds );
+	  }
+
 	  timer (seconds){ //counts time, takes seconds
 	      this.remainTime = Date.now() + (seconds * 1000);
 	      this.displayTimeLeft(seconds);
 	      
 	      this.intervalTimer = setInterval(function(){
 		  this.timeLeft = Math.round((this.remainTime - Date.now()) / 1000);
+		  this.playSounds( this.timeLeft );
 		  if(this.timeLeft < 0){
 		      clearInterval(this.intervalTimer);
 		      this.isStarted = false;
@@ -372,7 +428,10 @@
 
       };
 
-      const ct1 = new CircularTimer( 3 );
+      let s = new Object();
+      s[ 10 ] = 'CLOCKTick_Timer 2 (ID 0082)_BSB.wav';
+      s[ 0 ] = 'Thats All Folks.mp3';
+      const ct1 = new CircularTimer( 13, s );
       const ct2 = new CircularTimer( 22 );
       const ct3 = new CircularTimer( 33 );
       const ct4 = new CircularTimer( 44 );

@@ -39,6 +39,8 @@
 
       .data-setter {
 	  font-size: 24px;
+	  position: relative;
+	  bottom: 300px;
       }
 
       button[data-setter]:hover {
@@ -68,15 +70,15 @@
 
       .controlls {
 	  position: absolute;
-	  left: 75px;
-	  top: 105px;
+	  left: 65px;
+	  bottom: 80px;
 	  text-align: center;
       }
 
       .display-remain-time {
 	  font-family: 'Roboto';
 	  font-weight: 100;
-	  font-size: 65px;
+	  font-size: 85px;
       }
 
       #pause {
@@ -86,6 +88,7 @@
 	  margin-top: 10px;
 	  width: 50px;
 	  height: 50px;
+	  right: 66px;
 	  position: relative;
       }
 
@@ -101,8 +104,7 @@
 	  display: block;
 	  content: "";
 	  position: absolute;
-	  /* top: 8px; */
-	  /* left: 16px; */
+	  left: 73px;
 	  border-top: 15px solid transparent;
 	  border-bottom: 15px solid transparent;
 	  border-left: 22px solid var(--timer-color);
@@ -111,13 +113,12 @@
       .pause::after {
 	  content: "";
 	  position: absolute;
-	  /* top: 8px; */
-	  /* left: 12px; */
-	  width: 15px;
-	  height: 30px;
+	  left: 73px;
+	  width: 5px;
+	  height: 40px;
 	  background-color: transparent;
 	  border-radius: 1px;
-	  border: 5px solid var(--timer-color);
+	  border: 15px solid var(--timer-color);
 	  border-top: none;
 	  border-bottom: none;
       }
@@ -204,18 +205,18 @@
 	      this.sounds = sounds;
 
 	      document.write(`
-    <div class="container">
-      <div class="setters">
-	<div class="minutes-set">
+    <span class="container">
+      <span class="setters">
+	<span class="minutes-set">
 	  <button class="data-setter" data-setter-${this.id}="minutes-plus">+</button>
 	  <button class="data-setter" data-setter-${this.id}="minutes-minus">-</button>
-	</div>
-	<div class="seconds-set">
+	</span>
+	<span class="seconds-set">
 	  <button class="data-setter" data-setter-${this.id}="seconds-plus">+</button>
 	  <button class="data-setter" data-setter-${this.id}="seconds-minus">-</button>
-	</div>
-      </div>
-      <div id="circle-${this.id}" class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+	</span>
+      </span>
+      <span id="circle-${this.id}" class="circle"> <svg width="300" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
 	  <g transform="translate(110,110)">
 	    <circle r="100" class="e-c-base"/>
 	    <g transform="rotate(-90)">
@@ -225,12 +226,12 @@
               </g>
 	    </g>
 	  </g>
-      </svg> </div>
-      <div class="controlls">
+      </svg> </span>
+      <span class="controlls">
 	<div id="display-remain-time-${this.id}" class="display-remain-time">00:30</div>
 	<button id="pause-${this.id}" class="play"></button>
-      </div>
-    </div>
+      </span>
+    </span>
 `);
 
 
@@ -434,8 +435,10 @@
       const ct1 = new CircularTimer( 13, s );
       const ct2 = new CircularTimer( 22 );
       const ct3 = new CircularTimer( 33 );
+document.write("<p><center>");
       const ct4 = new CircularTimer( 44 );
       const ct5 = new CircularTimer( 55 );
+document.write("</center></p>");
 
     </script>
   </body>

@@ -10,37 +10,23 @@
     <script>dojoConfig = {parseOnLoad: true}</script>
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.14.1/dojo/dojo.js"></script>
+    <script src="./sample-recipes.js"></script>
 
     <script>
       const TITLE = 0;
       const INGREDIENTS = 1;
       const METHODS = 2;
-      
-      var recipes = [
-	  [ "Recipe 1 Title",
-	    ["Ingredient 1", "Ingredient 2", "Ingredient 3" ],
-	    ["Method 1", "Method 2", "Method 3" ]
-	  ],
-	  [ "Recipe 2 Title",
-	    ["Ingredient 2.1", "Ingredient 2.2", "Ingredient 2.3" ],
-	    ["Method 2.1", "Method 2.2", "Method 2.3" ]
-	  ],
-	  [ "Recipe 3 Title",
-	    ["Ingredient 3.1", "Ingredient 3.2", "Ingredient 3.3" ],
-	    ["Method 3.1", "Method 3.2", "Method 3.3" ]
-	  ]
-      ];
     </script>
 
     <script>
       function ingredientFromId( recipeId, ingredientId ) {
 	  // For recipe identified by recipeId, return the ingredient identified by ingredientId.
 	  console.log( "ingredientFromId(%d, %d)", recipeId, ingredientId );
-	  console.log( "recipes.length=%d", recipes.length );
-	  if( recipeId < 0 || recipeId >= recipes.length ) {
+	  console.log( "recipe_name_array.length=%d", recipe_name_array.length );
+	  if( recipeId < 0 || recipeId >= recipe_name_array.length ) {
 	      return undefined;
 	  } else {
-	      let r = recipes[ recipeId ];
+	      let r = recipe_name_array[ recipeId ];
 	      console.log( "r[%d].length=%d", INGREDIENTS, r[INGREDIENTS].length );
 	      if( ingredientId < 0 || ingredientId >= r[ INGREDIENTS ].length ) {
 		  return undefined;
@@ -101,6 +87,39 @@
       });
 
 
+      function addRecipes( recipe_name_array, refNode ) {
+	  // Add recipes in RECIPE_NAME_ARRAY as an unordered list and place it as REFNODE
+	  require([
+	      "dojo/dom",
+	      "dojo/dom-construct",
+	      "dojo/domReady!"
+	  ], function(dom, domConstruct) {
+	      let previousCategory = undefined;
+
+	      // Create a list container
+	      let listContainer = domConstruct.create("ul");
+	      let listSubContainer = undefined;
+
+	      for( let r of recipe_name_array ) {
+		  let cat = r[0];
+		  let title = r[1];
+
+		  if( cat !== previousCategory ) {
+		      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );
+		      listSubContainer = domConstruct.create("ul");
+		      domConstruct.place( domConstruct.create( "li", { innerHTML: cat }), listContainer );
+		      previousCategory = cat;
+		  }
+
+		  // Append list item to the list subcontainer
+		  domConstruct.place( domConstruct.create("li", { innerHTML: title }), listSubContainer );
+	      }
+
+	      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );
+	      // Append the list container to the body
+	      domConstruct.place(listContainer, refNode);
+	  });
+      }
       </script>
   </head>
   
@@ -118,11 +137,6 @@
 
       <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
 	<center><h2>Recipes</h2></center>
-	<ul>
-	  <li onclick="addCheckBoxIngredient(2, 0, 'recipe_ingredients')">Recipe #2,0</li>
-	  <li onclick="addCheckBoxIngredient(2, 1, 'recipe_ingredients')">Recipe #2,1</li>
-	  <li onclick="addCheckBoxIngredient(2, 2, 'recipe_ingredients')">Recipe #2,2</li>
-	</ul>
       </div>
 
       <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
@@ -131,6 +145,10 @@
       </div>
 
     </div>
+
+    <script>
+      addRecipes( recipe_name_array, "leftCol" );
+    </script>
 
     <!-- load dojo -->
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->

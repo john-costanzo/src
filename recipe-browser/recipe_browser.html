@@ -7,15 +7,9 @@
     <link rel="stylesheet" href="style.css" media="screen">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" media="screen">
 
-    <style>
-      #span {
-	  color: gray;
-	  font-style: italic;
-      }
-    </style>
-
     <script>dojoConfig = {parseOnLoad: true}</script>
-    <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.14.1/dojo/dojo.js"></script>
 
     <script>
       const TITLE = 0;
@@ -68,29 +62,45 @@
 	      // For recipe identified by recipeId, display a checkbox along with the ingredient identified by ingredientId
 	      // as the last child of refNode.
 	      let ingredient = ingredientFromId( recipeId, ingredientId );
-	      require(["dojo"], function(dojo){
-		  var cb = new CheckBox({
-		      name: "checkBox"+ingredientId,
-		      checked: false,
-		      onChange:
-		      function(b){
-			  console.log('onChange called on checkbox#' + ingredientId + ' with parameter = ' + b + ', and widget value = ' + this.get('value') );
-			  console.log("About to set innerHTML for checkBox" + ingredientId);
-			  if( b ) {
-			      dojo.query("label[for=checkBox" + ingredientId + "]")[0].innerHTML = "<span class='style1'>" + ingredient + "</span>";
-			  } else {
-			      dojo.query("label[for=checkBox" + ingredientId + "]")[0].innerHTML = "<span>" + ingredient + "</span>";
-			  }
-		      }
-		  }, "checkBox"+ingredientId );
-		  console.log( "cb=" + cb );
-		  console.log( "refNode=" + refNode );
 
-		  cb.placeAt(refNode);
-		  cb.domNode.appendChild(dojo.create("label", {"for" : "checkBox"+ingredientId, innerHTML: "<span>" + ingredient + "</span>"}));
+	      require([
+		  "dojo/dom",
+		  "dojo/dom-construct",
+		  "dojo/on",
+		  "dojo/domReady!"
+	      ], function(dom, domConstruct, on) {
+		  // Create a checkbox
+		  let checkbox = domConstruct.create("input", {
+		      type: "checkbox",
+		      id: "myCheckbox"
+		  });
+
+		  // Create a label for the checkbox
+		  let label = domConstruct.create("label", {
+		      for: "myCheckbox",
+		      innerHTML: "<span>" + ingredient + "</span>"
+		  });
+
+		  // Append the checkbox and label to the body
+		  domConstruct.place(checkbox, refNode);
+		  domConstruct.place(label, refNode);
+
+		  // // Add an event listener to the checkbox
+		  on(checkbox, "change", function(event) {
+		      console.log("Checkbox value: " + event.target.checked);
+		      console.log('onChange called on checkbox#' + ingredientId + ' with parameter = ' + event.target.checked + "; event.target=" + event.target );
+	       	      console.log("About to set innerHTML for checkBox" + ingredientId + " whose innerHTML = '" + label.innerHTML + "'" );
+	       	      if( event.target.checked ) {
+	       		  label.innerHTML = "<span class='ingredientClicked'>" + ingredient + "</span>";
+	       	      } else {
+	       		  label.innerHTML = "<span>" + ingredient + "</span>";
+	       	      }
+		  });
 	      });
 	  };
       });
+
+
       </script>
   </head>
   
@@ -125,9 +135,9 @@
     <!-- load dojo -->
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->
     <!-- <script> -->
-    <!--   require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"], function(parser){ -->
-    <!-- 	  parser.parse(); -->
-    <!--   }); -->
-    <!-- </script> -->
+      <!--   require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"], function(parser){ -->
+      <!-- 	  parser.parse(); -->
+      <!--   }); -->
+      <!-- </script> -->
   </body>
 </html>

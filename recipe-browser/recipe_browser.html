@@ -72,7 +72,7 @@
 		  // Create a checkbox
 		  let checkbox = domConstruct.create("input", {
 		      type: "checkbox",
-		      id: "myCheckbox"
+		      id: checkbox_id( "ingredient", ingredientId )
 		  });
 
 		  // Create a label for the checkbox
@@ -81,11 +81,11 @@
 		      innerHTML: "<span>" + ingredient + "</span>"
 		  });
 
-		  // Append the checkbox and label to the body
-		  domConstruct.place(checkbox, refNode);
-		  domConstruct.place(label, refNode);
+		  // Append the checkbox and label to the refNode
+		  domConstruct.place( checkbox, refNode );
+		  domConstruct.place( label, refNode );
 
-		  // // Add an event listener to the checkbox
+		  // Add an event listener to the checkbox
 		  on(checkbox, "change", function(event) {
 		      console.log("Checkbox value: " + event.target.checked);
 		      console.log('onChange called on checkbox#' + ingredientId + ' with parameter = ' + event.target.checked + "; event.target=" + event.target );

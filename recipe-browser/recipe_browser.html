@@ -87,13 +87,19 @@
       });
 
 
+      function addIngredients( recipe_id ) {
+	  // Add all ingredients for RECIPE_ID.
+	  console.log( "Adding these ingredients for '" + recipe_id + "': " + ingredient_map.get( recipe_id ) );
+      }
+
       function addRecipes( recipe_name_array, refNode ) {
 	  // Add recipes in RECIPE_NAME_ARRAY as an unordered list and place it as REFNODE
 	  require([
 	      "dojo/dom",
 	      "dojo/dom-construct",
+	      "dojo/on",
 	      "dojo/domReady!"
-	  ], function(dom, domConstruct) {
+	  ], function(dom, domConstruct, on) {
 	      let previousCategory = undefined;
 
 	      // Create a list container
@@ -103,6 +109,7 @@
 	      for( let r of recipe_name_array ) {
 		  let cat = r[0];
 		  let title = r[1];
+		  let id = r[2];
 
 		  if( cat !== previousCategory ) {
 		      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );
@@ -112,7 +119,15 @@
 		  }
 
 		  // Append list item to the list subcontainer
-		  domConstruct.place( domConstruct.create("li", { innerHTML: title }), listSubContainer );
+		  let listItem = domConstruct.create("li", { innerHTML: title });
+
+		  // Add an event listener to each list item
+		  on(listItem, "click", function() {
+		      console.log("Clicked on: " + title);
+		      addIngredients( id );
+		  });
+
+		  domConstruct.place( listItem, listSubContainer );
 	      }
 
 	      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );

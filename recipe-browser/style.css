@@ -21,9 +21,16 @@ html, body {
     height: 550px;
 }
 
-.ingredientClicked {
+.itemClicked {
     color: gray;
     text-decoration: line-through;
     font-style: italic;
 }
 
+li {
+    cursor: pointer;
+}
+
+.selectedRecipe {
+    font-weight: bold;
+}

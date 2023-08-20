@@ -8,8 +8,20 @@ html, body {
 #appLayout {
     height: 100%;
 }
+
+#topHeader {
+    height: 5px;
+    margin-top: 0px;
+    margin-bottom: 30px;
+}
+
 #leftCol {
-    width: 14em;
+    width: 20%;
+}
+
+
+#rightCol {
+    width: 20%;
 }
 
 .claro .demoLayout .edgePanel {
@@ -33,4 +45,22 @@ li {
 
 .selectedRecipe {
     font-weight: bold;
+}
+
+.note {
+    color: blue;
+    font-style: italic;
+}
+
+.conditional-space:after {
+  content: " ";
+}
+
+/* Prevent line breaks after word constituents */
+.conditional-space + * {
+  white-space: nowrap;
+}
+
+h2 {
+    margin-top: 0px;
 }

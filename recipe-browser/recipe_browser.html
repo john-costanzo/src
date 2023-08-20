@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>Recipe Browser</title>
-    <!-- <link rel="stylesheet" href="../../_common/demo.css" media="screen"> -->
     <link rel="stylesheet" href="style.css" media="screen">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" media="screen">
 
@@ -17,90 +16,23 @@
       const INGREDIENTS = 1;
       const METHODS = 2;
     </script>
-
-    <script>
-      function ingredientFromId( recipeId, ingredientId ) {
-	  // For recipe identified by recipeId, return the ingredient identified by ingredientId.
-	  console.log( "ingredientFromId(%d, %d)", recipeId, ingredientId );
-	  console.log( "recipe_name_array.length=%d", recipe_name_array.length );
-	  if( recipeId < 0 || recipeId >= recipe_name_array.length ) {
-	      return undefined;
-	  } else {
-	      let r = recipe_name_array[ recipeId ];
-	      console.log( "r[%d].length=%d", INGREDIENTS, r[INGREDIENTS].length );
-	      if( ingredientId < 0 || ingredientId >= r[ INGREDIENTS ].length ) {
-		  return undefined;
-	      } else {
-		  console.log("ingredientFromId: returning [%s]", r[ INGREDIENTS ][ ingredientId ] );
-		  return r[ INGREDIENTS ][ ingredientId ];
-	      }
-	  }
-      }
-    </script>
     
     <script>
-      // TODO: use this function
-      function checkbox_id(n,i) {return( "checkbox-" + n + "-" + i ); } 
-      
-      var addCheckBoxIngredient;
-      require(["dijit/form/CheckBox", "dojo/domReady!"], function(CheckBox){
-	  addCheckBoxIngredient=function(recipeId, ingredientId, refNode) {
-	      // For recipe identified by recipeId, display a checkbox along with the ingredient identified by ingredientId
-	      // as the last child of refNode.
-	      let ingredient = ingredientFromId( recipeId, ingredientId );
-
-	      require([
-		  "dojo/dom",
-		  "dojo/dom-construct",
-		  "dojo/on",
-		  "dojo/domReady!"
-	      ], function(dom, domConstruct, on) {
-		  // Create a checkbox
-		  let checkbox = domConstruct.create("input", {
-		      type: "checkbox",
-		      id: checkbox_id( "ingredient", ingredientId )
-		  });
-
-		  // Create a label for the checkbox
-		  let label = domConstruct.create("label", {
-		      for: "myCheckbox",
-		      innerHTML: "<span>" + ingredient + "</span>"
-		  });
-
-		  // Append the checkbox and label to the refNode
-		  domConstruct.place( checkbox, refNode );
-		  domConstruct.place( label, refNode );
-
-		  // Add an event listener to the checkbox
-		  on(checkbox, "change", function(event) {
-		      console.log("Checkbox value: " + event.target.checked);
-		      console.log('onChange called on checkbox#' + ingredientId + ' with parameter = ' + event.target.checked + "; event.target=" + event.target );
-	       	      console.log("About to set innerHTML for checkBox" + ingredientId + " whose innerHTML = '" + label.innerHTML + "'" );
-	       	      if( event.target.checked ) {
-	       		  label.innerHTML = "<span class='ingredientClicked'>" + ingredient + "</span>";
-	       	      } else {
-	       		  label.innerHTML = "<span>" + ingredient + "</span>";
-	       	      }
-		  });
-	      });
-	  };
-      });
-
-
       function addIngredients( recipe_id ) {
 	  // Add all ingredients for RECIPE_ID.
 	  require([
 	      "dojo/dom",
 	      "dojo/domReady!"
 	  ], function(dom) {
-	      var myElement = dom.byId( "recipe_ingredients" );
+	      let recipe_ingredients = dom.byId( "recipe_ingredients" );
 
-	      // Change the innerHTML of the element
-	      let ingredients = ingredient_map.get( recipe_id );
-	      if( ingredients )
-		  myElement.innerHTML = ingredients;
-	      else
-		  myElement.innerHTML = "";
+	      if( typeof ingredients_map !== "undefined" ) {
+		  let ingredients = ingredients_map.get( recipe_id );
+		  if( ingredients )
+		      recipe_ingredients.innerHTML = ingredients;
+		  else
+		      recipe_ingredients.innerHTML = "";
+	      }
 	  });
       }
 
@@ -110,14 +42,33 @@
 	      "dojo/dom",
 	      "dojo/domReady!"
 	  ], function(dom) {
-	      var myElement = dom.byId( "recipe_method" );
+	      let recipe_method = dom.byId( "recipe_method" );
 
-	      // Change the innerHTML of the element
-	      let method = method_map.get( recipe_id );
-	      if( method )
-		  myElement.innerHTML = method;
-	      else
-		  myElement.innerHTML = "";
+	      if (typeof methods_map !== "undefined") {
+		  let method = methods_map.get( recipe_id );
+		  if( method )
+		      recipe_method.innerHTML = method;
+		  else
+		      recipe_method.innerHTML = "";
+	      }
+
+	      if (typeof yields_map !== "undefined") {
+		  let yield = yields_map.get( recipe_id );
+		  if( yield )
+		      recipe_method.innerHTML =
+		      recipe_method.innerHTML +
+		      "<h2>Yield</h2>" +
+		      yield;
+	      }
+
+	      if (typeof credits_map !== "undefined") {
+		  let credit = credits_map.get( recipe_id );
+		  if( credit )
+		      recipe_method.innerHTML =
+		      recipe_method.innerHTML +
+		      "<h2>Credit</h2>" +
+		      credit;
+	      }
 	  });
       }
 
@@ -131,51 +82,81 @@
       }
 
 
-      function addRecipes( recipe_name_array, refNode ) {
-	  // Add recipes in RECIPE_NAME_ARRAY as an unordered list and place it as REFNODE
+      function addConditionalSpaceIfNextElementMatches( className, regex ) {
+	  // For all elements that contain CLASSNAME,
+	  // append a space to the text of the element if, and only if,
+	  // the following element begins with the regular expression REGEX.
+
+	  // Get all elements of class CLASSNAME
+	  const conditionalSpaces = document.querySelectorAll( '.' +  className );
+
+	  // Loop through each element and conditionally update its content
+	  conditionalSpaces.forEach( element => {
+	      console.log( "element = '" + element.textContent + "'" );
+	      const nextElement = element.nextElementSibling;
+
+	      // Get the first character of that next element
+	      if( nextElement ) {
+		  const text = nextElement.textContent.trim();
+		  console.log( "considering '" + text + "'" );
+		  const firstChar = text.charAt( 0 );
+
+		  // Check if the first character is a word constituent (letter, digit, or underscore)
+		  console.log( "firstChar = '" + firstChar + "'" );
+		  const isFirstCharWordConstituent = regex.test( firstChar );
+
+		  // Prepend a space to the element if the first character is a word constituent
+		  if ( isFirstCharWordConstituent ) {
+		      console.log( "\tadding space to '" + element.textContent + "'" );
+		      element.textContent += ' ';
+		      console.log( "\tadded space to '" + element.textContent + "'" );
+		  }
+	      }
+	      console.log( "\n\n" );
+	  });
+      }
+
+      function addRecipes( recipe_name_map, refNode ) {
+	  // Add recipes in RECIPE_NAME_MAP as an unordered list and place it as REFNODE
 	  require([
 	      "dojo/dom",
 	      "dojo/dom-construct",
 	      "dojo/on",
 	      "dojo/domReady!"
 	  ], function(dom, domConstruct, on) {
-	      let previousCategory = undefined;
 
 	      // Create a list container
-	      let listContainer = domConstruct.create("ul");
-	      let listSubContainer = undefined;
+	      const listContainer = domConstruct.create("ul");
 
-	      for( let r of recipe_name_array ) {
-		  let cat = r[0];
-		  let title = r[1];
-		  let id = r[2];
+	      recipe_name_map.forEach( function( recipe_list, cat ) {
+		  const catHeader = domConstruct.create("li", { innerHTML: cat });
+		  domConstruct.place( catHeader, listContainer );
 
-		  if( cat !== previousCategory ) {
-		      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );
-		      listSubContainer = domConstruct.create("ul");
-		      domConstruct.place( domConstruct.create( "li", { innerHTML: cat }), listContainer );
-		      previousCategory = cat;
-		  }
+		  const listSubContainer = domConstruct.create("ul");
+		  domConstruct.place( listSubContainer, catHeader );
 
-		  // Append list item to the list subcontainer
-		  let listItem = domConstruct.create("li", { innerHTML: title });
+		  console.log( "recipe_list= " + recipe_list.length + " ==> " + recipe_list );
+		  recipe_list.forEach( function( recipe ) {
+		      const recipeTitle = recipe[ 0 ];
+		      const recipeId = recipe[ 1 ];
 
-		  // Add an event listener to each list item
-		  on(listItem, "click", function() {
-		      let topHeader = dom.byId( "topHeader" );
-		      topHeader.innerHTML = title;
-		      addIngredients( id );
-		      addMethods( id );
+		      const listItem = domConstruct.create("li", { innerHTML: recipeTitle });
+		      // Add an event listener to each list item
+		      on(listItem, "click", function() {
+			  let topHeader = dom.byId( "topHeader" );
+			  topHeader.innerHTML = recipeTitle;
+			  addIngredients( recipeId );
+			  addMethods( recipeId );
+		      });
+
+		      domConstruct.place( listItem, listSubContainer );
 		  });
-
-		  domConstruct.place( listItem, listSubContainer );
-	      }
-
-	      if( previousCategory !== undefined ) domConstruct.place( listSubContainer, listContainer );
-	      // Append the list container to the body
+	      });
 	      domConstruct.place(listContainer, refNode);
 	  });
+	  addConditionalSpaceIfNextElementMatches( "conditional-space-after", /^[a-zA-Z0-9_]+$/ );
       }
+
       </script>
   </head>
   
@@ -183,36 +164,37 @@
     <div id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline'">
 
       <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
-	<center><h2 id="topHeader">Recipe Browser</h2></center>
-      </div>
+	<center><h1 id="topHeader">Recipe Browser</h2></center>
+</div>
 
-      <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
-	<center><h2>Method</h2></center>
-	<div id="recipe_method"></div>
-      </div>
+<div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
+  <center><h2>Method</h2></center>
+  <div id="recipe_method"></div>
+</div>
 
-      <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
-	<center><h2>Recipes</h2></center>
-	<div id="recipe_titles"></div>
-      </div>
+<div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
+  <center><h2>Recipes</h2></center>
+  <div id="recipe_titles"></div>
+</div>
 
-      <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
-	<center><h2>Ingredients</h2></center>
-	<div id="recipe_ingredients"></div>
-      </div>
+<div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
+  <center><h2>Ingredients</h2></center>
+  <div id="recipe_ingredients"></div>
+</div>
 
-    </div>
+</div>
 
-    <script>
-      addRecipes( recipe_name_array, "recipe_titles" );
-    </script>
+<script>
 
-    <!-- load dojo -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->
-    <!-- <script> -->
-      <!--   require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"], function(parser){ -->
-      <!-- 	  parser.parse(); -->
-      <!--   }); -->
-      <!-- </script> -->
-  </body>
+  addRecipes( recipe_name_map, "recipe_titles" );
+</script>
+
+<!-- load dojo -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script> -->
+<!-- <script> -->
+  <!--   require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"], function(parser){ -->
+  <!-- 	  parser.parse(); -->
+  <!--   }); -->
+  <!-- </script> -->
+</body>
 </html>

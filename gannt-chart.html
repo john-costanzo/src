@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Load the Gantt package
+        google.charts.load( 'current', {
+            'packages': [ 'gantt' ]
+        } );
+        google.charts.setOnLoadCallback( drawChart );
+
+        function drawChart( ) {
+            var query = new google.visualization.Query(
+                'https://docs.google.com/spreadsheets/d/1snMYWixV3cwmf8qTNLiU9UCcXMmQRtGLXuuYMvOuTbU/gviz/tq?sheet=Doris%20Apr%2725%20(gannt)'
+            );
+            query.send( handleQueryResponse );
+        }
+
+        function handleQueryResponse( response ) {
+            if ( response.isError( ) ) {
+                alert( 'Error in query: ' + response.getMessage( ) + ' ' + response.getDetailedMessage( ) );
+                return;
+            }
+
+            // Get data from Google Sheets
+            var data = response.getDataTable( );
+
+            var newData = new google.visualization.DataTable( );
+            newData.addColumn( 'string', 'Task ID' );
+            newData.addColumn( 'string', 'Task Name' );
+            newData.addColumn( 'string', 'Resource' );
+            newData.addColumn( 'date', 'Start Date' );
+            newData.addColumn( 'date', 'End Date' );
+            newData.addColumn( 'number', 'Duration' );
+            newData.addColumn( 'number', 'Percent Complete' );
+            newData.addColumn( 'string', 'Dependencies' );
+
+            for ( var i = 0; i < data.getNumberOfRows( ); i++ ) {
+                newData.addRow( [
+                    data.getValue( i, 0 ),
+                    data.getValue( i, 1 ),
+                    data.getValue( i, 2 ),
+                    new Date( data.getValue( i, 3 ) ),
+                    new Date( data.getValue( i, 4 ) ),
+                    data.getValue( i, 5 ),
+                    data.getValue( i, 6 ),
+                    data.getValue( i, 7 )
+                ] );
+            }
+
+            var options = {
+                height: 4000,
+                width: 1500,
+                gantt: {
+
+                    palette: [ {
+                            "color": "#db4437",
+                            "dark": "#a52714",
+                            "light": "#f4c7c3"
+                        }, // First resource
+                        {
+                            "color": "#5e97f6",
+                            "dark": "#2a56c6",
+                            "light": "#c6dafc"
+                        }, // Second resource
+                        {
+                            "color": "#00FF00",
+                            "dark": "#006400",
+                            "light": "#90EE90"
+                        } // Third resource
+                    ],
+
+
+                    criticalPathEnabled: true,
+                    criticalPathStyle: {
+                        stroke: '#e64a19',
+                        strokeWidth: 5
+                    },
+                    // arrow: {
+                    //     angle: 25,
+                    //     length: 5,
+                    //     width: 5,
+                    //     color: 'green',
+                    //     radius: 0
+                    // },
+                    barHeight: 20,
+                    trackHeight: 25,
+                    sortTasks: true,
+                },
+            };
+
+            var chart = new google.visualization.Gantt( document.getElementById( 'chart_div' ) );
+            chart.draw( newData, options );
+
+        }
+    </script>
+</head>
+
+<body>
+    <div id="chart_div"></div>
+</body>
+
+</html>
